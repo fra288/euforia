@@ -3,31 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Euforia Team's | Official</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Euforia Team's | Portal de Desarrolladores</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(90deg, #4f46e5, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-pattern { background-color: #0b0e14; background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px); background-size: 24px 24px; }
+        .card-blur { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .modal { transition: opacity 0.3s ease; }
+    </style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="logo-area">
-            <img src="https://files.catbox.moe/34tlxv.png" alt="Logo Euforia" class="site-logo">
-            <span>Euforia Team's</span>
-        </div>
-        <div class="links">
-            <a href="index.html">Inicio</a>
-            <a href="proyectos.html">Proyectos</a>
-            <a href="https://discord.gg/invite" class="discord-link">Discord</a>
+<body class="bg-slate-950 text-white overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold tracking-tighter">EUFORIA<span class="text-indigo-500">TEAM'S</span></div>
+            <div class="hidden md:flex items-center space-x-8 text-sm font-medium uppercase tracking-widest text-slate-300">
+                <a href="#inicio" class="hover:text-white transition">Inicio</a>
+                <a href="#servicios" class="hover:text-white transition">Servicios</a>
+                <div id="userNav" class="flex items-center space-x-4">
+                    <button onclick="openLogin()" id="loginBtn" class="bg-indigo-600 px-5 py-2 rounded-full text-white hover:bg-indigo-700 transition">Login</button>
+                    <div id="userInfo" class="hidden flex items-center space-x-3">
+                        <span id="userNameDisplay" class="text-white normal-case"></span>
+                        <button onclick="logout()" class="text-red-400 hover:text-red-300"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <header class="hero">
-        <h1>Code con <span class="neon">Euforia</span></h1>
-        <p>Innovación colectiva para el mundo digital.</p>
-        <div class="btns">
-            <button onclick="window.location.href='proyectos.html'">Portafolio</button>
-            <button class="sec" onclick="window.open('https://discord.gg/invite')">Comunidad</button>
-        </div>
-    </header>
+    <!-- Modal Login -->
+    <div id="loginModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 w-full max-w-md p-8 rounded-2xl border border-white/10 relative">
+            <button onclick="closeLogin()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Acceso Euforia</h2>
+            
+            <div id="loginError" class="hidden bg-red-500/20 border border-red-500/50 text-red-300 p-3 rounded-lg mb-4 text-sm">
+                Credenciales incorrectas. Revisa el archivo YAML.
+            </div>
 
-    <script src="script.js"></script>
+            <form id="authForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">Usuario</label>
+                    <input type="text" id="userInput" class="w-full p-3 rounded-lg bg-slate-800 border border-white/10 focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">Contraseña</label>
+                    <input type="password" id="passInput" class="w-full p-3 rounded-lg bg-slate-800 border border-white/10 focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">Entrar</button>
+            </form>
+            <p class="mt-4 text-xs text-slate-500 text-center">
+                Demo: admin / 1234
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section id="inicio" class="hero-pattern min-h-screen flex items-center justify-center pt-20">
+        <div class="max-w-4xl mx-auto text-center px-6">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Codificamos el <span class="gradient-text">Futuro Digital</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 mb-10">
+                Transformamos ideas en software robusto. Accede al portal para ver el progreso de tus proyectos.
+            </p>
+            <div class="flex justify-center gap-4">
+                <button onclick="openLogin()" class="px-8 py-4 bg-white text-black font-semibold rounded-lg hover:bg-slate-200 transition">Comenzar Ahora</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script de Autenticación con Base de Datos YAML -->
+    <script>
+        // Simulación de Base de Datos en formato YAML
+        const yamlDatabase = `
+users:
+  - id: 1
+    username: "admin"
+    password: "1234"
+    name: "Administrador Euforia"
+    role: "Lead Dev"
+  - id: 2
+    username: "dev_user"
+    password: "password123"
+    name: "Frontend Specialist"
+    role: "Developer"
+`;
+
+        const db = jsyaml.load(yamlDatabase);
+        const loginModal = document.getElementById('loginModal');
+        const loginError = document.getElementById('loginError');
+        const userNav = document.getElementById('userInfo');
+        const loginBtn = document.getElementById('loginBtn');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+
+        // Check session on load
+        window.onload = () => {
+            const savedUser = localStorage.getItem('euforia_session');
+            if (savedUser) renderUser(JSON.parse(savedUser));
+        };
+
+        function openLogin() { loginModal.classList.remove('hidden'); }
+        function closeLogin() { 
+            loginModal.classList.add('hidden'); 
+            loginError.classList.add('hidden');
+        }
+
+        document.getElementById('authForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const u = document.getElementById('userInput').value;
+            const p = document.getElementById('passInput').value;
+
+            // Búsqueda en la "base de datos" YAML
+            const user = db.users.find(user => user.username === u && user.password === p);
+
+            if (user) {
+                localStorage.setItem('euforia_session', JSON.stringify(user));
+                renderUser(user);
+                closeLogin();
+            } else {
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        function renderUser(user) {
+            loginBtn.classList.add('hidden');
+            userNav.classList.remove('hidden');
+            userNameDisplay.innerText = `Hola, ${user.name}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('euforia_session');
+            location.reload();
+        }
+    </script>
 </body>
 </html>
