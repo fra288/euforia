@@ -3,145 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Euforia Team's | Portal de Desarrolladores</title>
+    <title>Euforia Team's | Portal de Desarrollo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
         
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .gradient-text { background: linear-gradient(90deg, #4f46e5, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero-pattern { background-color: #0b0e14; background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px); background-size: 24px 24px; }
-        .card-blur { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .modal { transition: opacity 0.3s ease; }
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --dark: #0f172a;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            scroll-behavior: smooth;
+            background-color: var(--dark);
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width .3s;
+        }
+
+        .nav-link:hover::after { width: 100%; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-950 text-white overflow-x-hidden">
+<body class="text-slate-200 selection:bg-indigo-500/30">
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold tracking-tighter">EUFORIA<span class="text-indigo-500">TEAM'S</span></div>
-            <div class="hidden md:flex items-center space-x-8 text-sm font-medium uppercase tracking-widest text-slate-300">
-                <a href="#inicio" class="hover:text-white transition">Inicio</a>
-                <a href="#servicios" class="hover:text-white transition">Servicios</a>
-                <div id="userNav" class="flex items-center space-x-4">
-                    <button onclick="openLogin()" id="loginBtn" class="bg-indigo-600 px-5 py-2 rounded-full text-white hover:bg-indigo-700 transition">Login</button>
-                    <div id="userInfo" class="hidden flex items-center space-x-3">
-                        <span id="userNameDisplay" class="text-white normal-case"></span>
-                        <button onclick="logout()" class="text-red-400 hover:text-red-300"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 btn-primary rounded-xl flex items-center justify-center">
+                    <i class="fas fa-bolt text-white"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-white">EUFORIA<span class="text-indigo-400">TEAM</span></span>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-10">
+                <a href="#inicio" class="nav-link text-sm font-semibold tracking-wide uppercase">Inicio</a>
+                <a href="#servicios" class="nav-link text-sm font-semibold tracking-wide uppercase">Servicios</a>
+                <div id="authSection">
+                    <!-- Dinámico -->
+                    <button onclick="toggleModal('authModal')" class="btn-primary px-6 py-2.5 rounded-full text-sm font-bold text-white uppercase tracking-wider">
+                        Acceder
+                    </button>
+                </div>
+                <div id="userProfile" class="hidden flex items-center space-x-4">
+                    <div class="h-8 w-[1px] bg-white/10"></div>
+                    <span id="userName" class="text-sm font-medium"></span>
+                    <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 transition">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Modal Login -->
-    <div id="loginModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="bg-slate-900 w-full max-w-md p-8 rounded-2xl border border-white/10 relative">
-            <button onclick="closeLogin()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
-            <h2 class="text-2xl font-bold mb-6 text-center">Acceso Euforia</h2>
+    <!-- Auth Modal (Login / Register) -->
+    <div id="authModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-4">
+        <div class="glass w-full max-w-md p-10 rounded-3xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            <button onclick="toggleModal('authModal')" class="absolute top-6 right-6 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             
-            <div id="loginError" class="hidden bg-red-500/20 border border-red-500/50 text-red-300 p-3 rounded-lg mb-4 text-sm">
-                Credenciales incorrectas. Revisa el archivo YAML.
+            <div id="authTabs" class="flex mb-8 border-b border-white/10">
+                <button onclick="switchTab('login')" id="tabLogin" class="flex-1 pb-4 text-sm font-bold border-b-2 border-indigo-500 text-white uppercase tracking-widest">Ingresar</button>
+                <button onclick="switchTab('register')" id="tabRegister" class="flex-1 pb-4 text-sm font-bold border-b-2 border-transparent text-slate-500 uppercase tracking-widest">Registrarse</button>
             </div>
 
-            <form id="authForm" class="space-y-4">
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-5">
                 <div>
-                    <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">Usuario</label>
-                    <input type="text" id="userInput" class="w-full p-3 rounded-lg bg-slate-800 border border-white/10 focus:outline-none focus:border-indigo-500" required>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Usuario</label>
+                    <input type="text" id="lUser" class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-xl focus:ring-2 ring-indigo-500/50 outline-none transition" required>
                 </div>
                 <div>
-                    <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">Contraseña</label>
-                    <input type="password" id="passInput" class="w-full p-3 rounded-lg bg-slate-800 border border-white/10 focus:outline-none focus:border-indigo-500" required>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Contraseña</label>
+                    <input type="password" id="lPass" class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-xl focus:ring-2 ring-indigo-500/50 outline-none transition" required>
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">Entrar</button>
+                <button type="submit" class="w-full btn-primary py-4 rounded-xl font-bold text-white shadow-lg">Iniciar Sesión</button>
             </form>
-            <p class="mt-4 text-xs text-slate-500 text-center">
-                Demo: admin / 1234
-            </p>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="hidden space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Nombre Completo</label>
+                    <input type="text" id="rName" class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-xl focus:ring-2 ring-indigo-500/50 outline-none transition" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Usuario</label>
+                    <input type="text" id="rUser" class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-xl focus:ring-2 ring-indigo-500/50 outline-none transition" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Contraseña</label>
+                    <input type="password" id="rPass" class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-xl focus:ring-2 ring-indigo-500/50 outline-none transition" required>
+                </div>
+                <button type="submit" class="w-full btn-primary py-4 rounded-xl font-bold text-white shadow-lg">Crear Cuenta</button>
+            </form>
+            
+            <p id="msg" class="hidden mt-4 text-center text-sm font-medium py-2 rounded-lg"></p>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <section id="inicio" class="hero-pattern min-h-screen flex items-center justify-center pt-20">
-        <div class="max-w-4xl mx-auto text-center px-6">
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Codificamos el <span class="gradient-text">Futuro Digital</span>
+    <!-- Hero Section -->
+    <header id="inicio" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <div class="absolute inset-0 z-0 opacity-30">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-indigo-600 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-20 right-10 w-72 h-72 bg-purple-600 rounded-full blur-[120px]"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+            <div class="inline-flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full mb-8">
+                <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                <span class="text-xs font-bold tracking-widest text-indigo-300 uppercase">Coding the future</span>
+            </div>
+            <h1 class="text-6xl md:text-8xl font-black mb-8 leading-[1.1] tracking-tight">
+                Software de <br><span class="gradient-text">Clase Mundial</span>
             </h1>
-            <p class="text-lg md:text-xl text-slate-400 mb-10">
-                Transformamos ideas en software robusto. Accede al portal para ver el progreso de tus proyectos.
+            <p class="text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Euforia Team's es un colectivo de élite especializado en crear soluciones digitales escalables y disruptivas.
             </p>
-            <div class="flex justify-center gap-4">
-                <button onclick="openLogin()" class="px-8 py-4 bg-white text-black font-semibold rounded-lg hover:bg-slate-200 transition">Comenzar Ahora</button>
+            <div class="flex flex-col sm:row gap-4 justify-center">
+                <a href="#servicios" class="btn-primary px-10 py-5 rounded-2xl font-bold text-white text-lg">Explorar Soluciones</a>
+                <button onclick="toggleModal('authModal')" class="glass px-10 py-5 rounded-2xl font-bold text-white text-lg hover:bg-white/10 transition">Unirse al Equipo</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Services Grid -->
+    <section id="servicios" class="py-32 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-20">
+                <h2 class="text-4xl font-extrabold mb-4">Nuestros Pilares</h2>
+                <p class="text-slate-500 text-lg">Excelencia técnica aplicada a cada línea de código.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass p-10 rounded-[2.5rem] hover:border-indigo-500/50 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-indigo-500 transition-colors">
+                        <i class="fas fa-cubes text-2xl text-indigo-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Arquitectura Cloud</h3>
+                    <p class="text-slate-400 leading-relaxed">Sistemas distribuidos de alta disponibilidad diseñados para el crecimiento masivo.</p>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem] hover:border-purple-500/50 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-purple-500 transition-colors">
+                        <i class="fas fa-shield-alt text-2xl text-purple-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Ciberseguridad</h3>
+                    <p class="text-slate-400 leading-relaxed">Protección de activos digitales mediante estándares de encriptación militar y auditorías.</p>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem] hover:border-emerald-500/50 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-500 transition-colors">
+                        <i class="fas fa-brain text-2xl text-emerald-400 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">IA & Big Data</h3>
+                    <p class="text-slate-400 leading-relaxed">Modelos inteligentes que transforman datos crudos en decisiones estratégicas de negocio.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Script de Autenticación con Base de Datos YAML -->
+    <!-- Scripts -->
     <script>
-        // Simulación de Base de Datos en formato YAML
-        const yamlDatabase = `
+        // "Base de Datos" Inicial en YAML
+        const defaultYaml = `
 users:
   - id: 1
     username: "admin"
-    password: "1234"
+    password: "123"
     name: "Administrador Euforia"
-    role: "Lead Dev"
-  - id: 2
-    username: "dev_user"
-    password: "password123"
-    name: "Frontend Specialist"
-    role: "Developer"
+    role: "Lead"
 `;
 
-        const db = jsyaml.load(yamlDatabase);
-        const loginModal = document.getElementById('loginModal');
-        const loginError = document.getElementById('loginError');
-        const userNav = document.getElementById('userInfo');
-        const loginBtn = document.getElementById('loginBtn');
-        const userNameDisplay = document.getElementById('userNameDisplay');
+        // Inicializar DB en LocalStorage si no existe
+        if (!localStorage.getItem('euforia_db')) {
+            localStorage.setItem('euforia_db', defaultYaml);
+        }
 
-        // Check session on load
-        window.onload = () => {
-            const savedUser = localStorage.getItem('euforia_session');
-            if (savedUser) renderUser(JSON.parse(savedUser));
+        const getDB = () => jsyaml.load(localStorage.getItem('euforia_db'));
+        const saveDB = (data) => localStorage.setItem('euforia_db', jsyaml.dump(data));
+
+        // UI Management
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
+            resetMsg();
+        }
+
+        function switchTab(type) {
+            const isLogin = type === 'login';
+            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+            document.getElementById('registerForm').classList.toggle('hidden', isLogin);
+            
+            document.getElementById('tabLogin').className = isLogin ? 'flex-1 pb-4 text-sm font-bold border-b-2 border-indigo-500 text-white uppercase tracking-widest' : 'flex-1 pb-4 text-sm font-bold border-b-2 border-transparent text-slate-500 uppercase tracking-widest';
+            document.getElementById('tabRegister').className = !isLogin ? 'flex-1 pb-4 text-sm font-bold border-b-2 border-indigo-500 text-white uppercase tracking-widest' : 'flex-1 pb-4 text-sm font-bold border-b-2 border-transparent text-slate-500 uppercase tracking-widest';
+            resetMsg();
+        }
+
+        function showMsg(text, isError = false) {
+            const el = document.getElementById('msg');
+            el.innerText = text;
+            el.className = `mt-4 text-center text-sm font-bold py-3 rounded-xl block ${isError ? 'bg-red-500/20 text-red-400 border border-red-500/50' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'}`;
+        }
+
+        function resetMsg() { document.getElementById('msg').classList.add('hidden'); }
+
+        // Auth Logic
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            const u = document.getElementById('lUser').value;
+            const p = document.getElementById('lPass').value;
+            const db = getDB();
+            
+            const user = db.users.find(x => x.username === u && x.password === p);
+            if (user) {
+                localStorage.setItem('session', JSON.stringify(user));
+                location.reload();
+            } else {
+                showMsg('Credenciales inválidas.', true);
+            }
         };
 
-        function openLogin() { loginModal.classList.remove('hidden'); }
-        function closeLogin() { 
-            loginModal.classList.add('hidden'); 
-            loginError.classList.add('hidden');
-        }
-
-        document.getElementById('authForm').addEventListener('submit', function(e) {
+        document.getElementById('registerForm').onsubmit = (e) => {
             e.preventDefault();
-            const u = document.getElementById('userInput').value;
-            const p = document.getElementById('passInput').value;
+            const name = document.getElementById('rName').value;
+            const user = document.getElementById('rUser').value;
+            const pass = document.getElementById('rPass').value;
+            const db = getDB();
 
-            // Búsqueda en la "base de datos" YAML
-            const user = db.users.find(user => user.username === u && user.password === p);
-
-            if (user) {
-                localStorage.setItem('euforia_session', JSON.stringify(user));
-                renderUser(user);
-                closeLogin();
-            } else {
-                loginError.classList.remove('hidden');
+            if (db.users.find(x => x.username === user)) {
+                return showMsg('El usuario ya existe.', true);
             }
-        });
 
-        function renderUser(user) {
-            loginBtn.classList.add('hidden');
-            userNav.classList.remove('hidden');
-            userNameDisplay.innerText = `Hola, ${user.name}`;
-        }
+            db.users.push({ id: Date.now(), username: user, password: pass, name, role: 'Miembro' });
+            saveDB(db);
+            showMsg('¡Cuenta creada! Ya puedes iniciar sesión.');
+            setTimeout(() => switchTab('login'), 1500);
+        };
 
-        function logout() {
-            localStorage.removeItem('euforia_session');
+        function handleLogout() {
+            localStorage.removeItem('session');
             location.reload();
         }
+
+        // Session Check
+        window.onload = () => {
+            const session = localStorage.getItem('session');
+            if (session) {
+                const user = JSON.parse(session);
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('userProfile').classList.remove('hidden');
+                document.getElementById('userName').innerText = user.name;
+            }
+        };
     </script>
 </body>
 </html>
